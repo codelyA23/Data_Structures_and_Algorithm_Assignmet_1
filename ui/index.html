@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#14161d">
+  <meta name="description" content="Explore a Python stack calculator: evaluate expressions, watch each stack operation, and run input.txt files.">
+  <title>Stack Lab — Python calculator demo</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2314161d'/%3E%3Cpath d='M8 9h16M8 16h16M8 23h16' stroke='%23b5a0ff' stroke-width='4'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#demo" aria-label="Stack Lab home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>Stack Lab<span class="brand-caption">EXPRESSION ENGINE</span></a>
+    <div class="engine-status" id="engine-status" role="status"><span class="spinner" aria-hidden="true"></span>Loading Python engine…</div>
+  </header>
+  <main>
+    <div class="page-heading"><div><p class="eyebrow">DATA STRUCTURES / STACKS</p><h1>See the stack in action.</h1><p class="intro">Enter an expression. Follow every push, pop, and calculation.</p></div><span class="course-badge">DCOMP320<span>Interactive demo</span></span></div>
+    <nav class="view-tabs" aria-label="Demo views"><button data-view="demo" class="selected" aria-current="page">Expression demo</button><button data-view="files">File runner</button><button data-view="code">Explore the code</button></nav>
+
+    <section id="view-demo" class="view active" aria-label="Expression demo">
+      <div class="workspace">
+        <aside class="input-column">
+          <div class="panel expression-panel"><div class="panel-heading"><h2>Your expression</h2><span class="file-label">INPUT</span></div>
+            <form id="expression-form"><label for="expression">Use numbers, +, −, *, /, and parentheses.</label><textarea id="expression" rows="2" spellcheck="false" maxlength="10000">3 + 5 * 2</textarea><button class="primary full" id="evaluate-button" type="submit" disabled>Evaluate expression</button></form>
+            <p class="small-label">TRY AN EXAMPLE</p><div class="examples"><button data-expression="3 + 5 * 2">Precedence</button><button data-expression="10 - (2 + 3) * 4">Parentheses</button><button data-expression="2 * -3 + 8">Negative numbers</button><button data-expression=".5 + 2.5 / 2">Decimals</button></div>
+          </div>
+          <div class="panel result-panel" id="result-panel"><p class="small-label">RESULT</p><div id="result" aria-live="polite">—</div><p id="result-caption">The Python engine is getting ready.</p><button id="retry" class="secondary hidden">Retry engine</button></div>
+          <div class="rules"><h3>What gets evaluated first?</h3><div><span class="rule-number">1</span><p><strong>Parentheses & signs</strong><span>Groups and unary + or −</span></p></div><div><span class="rule-number">2</span><p><strong>Multiply & divide</strong><span>Same priority, left to right</span></p></div><div><span class="rule-number">3</span><p><strong>Add & subtract</strong><span>Same priority, left to right</span></p></div></div>
+        </aside>
+
+        <div class="panel visualizer"><div class="panel-heading"><h2>Inside the engine</h2><span class="step-count" id="step-count">Ready to explore</span></div>
+          <div class="token-area"><span class="small-label">EXPRESSION TOKENS</span><div id="tokens" class="tokens" aria-label="Expression tokens"><span class="token">3</span><span class="token">+</span><span class="token">5</span><span class="token">*</span><span class="token">2</span></div></div>
+          <div class="stacks"><div class="stack-box values"><div class="stack-title"><h3>Value stack</h3><span>numbers</span></div><div class="stack-list" id="value-stack"><p class="empty-stack">Stack is empty</p></div><p class="stack-base">VALUES</p></div><div class="stack-box operators"><div class="stack-title"><h3>Operator stack</h3><span>operations</span></div><div class="stack-list" id="operator-stack"><p class="empty-stack">Stack is empty</p></div><p class="stack-base">OPERATORS</p></div></div>
+          <div class="explanation" aria-live="polite"><span id="action-icon" aria-hidden="true">01</span><div><h3 id="step-action">Two stacks. One result.</h3><p id="step-message">Numbers go on one stack. Operators go on the other. The engine applies precedence before combining values.</p><button class="text-button" id="step-code">View the Python for this step</button></div></div>
+          <div class="playback"><div class="playback-buttons"><button id="restart" title="Restart trace" disabled>Restart</button><button id="previous" title="Previous step" disabled>Back</button><button id="play" class="primary" disabled><span aria-hidden="true">▶</span> Play</button><button id="next" disabled>Next step</button></div><label class="speed-label">Speed<select id="speed" aria-label="Playback speed"><option value="1600">Slow</option><option value="900" selected>Normal</option><option value="400">Fast</option></select></label></div>
+          <input type="range" id="timeline" min="0" max="0" value="0" aria-label="Select trace step" disabled>
+          <div class="trace-header"><h3>Execution trace</h3><span>Last in, first out · LIFO</span></div><div class="trace-list" id="trace-list"><p class="muted">Each operation will appear here.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-files" class="view" aria-label="File runner">
+      <div class="section-intro"><h2>From input.txt to output.txt</h2><p>One expression per line. Separator lines and blank lines stay in place.</p></div>
+      <div class="file-grid"><div class="panel"><div class="panel-heading"><h3>input.txt</h3><label class="upload-button">Load .txt<input id="file-upload" type="file" accept=".txt,text/plain"></label></div><label class="sr-only" for="file-input">Input file content</label><textarea id="file-input" class="file-editor" spellcheck="false">3 + 5 * 2
+-----
+(8 / 4) + 7 * 2
+-----
+10 - (2 + 3) * 4
+</textarea><div class="file-actions"><button id="run-file" class="primary" disabled>Run file</button><button id="sample-file" class="secondary">Reset sample</button></div></div><div class="panel"><div class="panel-heading"><h3>output.txt</h3><span class="file-label" id="file-count">OUTPUT</span></div><pre id="file-output" class="file-editor output-placeholder" aria-live="polite">Run the input file to see the results.</pre><div class="file-actions"><button id="download-output" class="secondary" disabled>Download output.txt</button><button id="download-input" class="text-button">Download input.txt</button></div></div></div>
+      <p id="file-feedback" role="status" class="file-feedback"></p><div id="file-results" class="file-results"></div>
+    </section>
+
+    <section id="view-code" class="view" aria-label="Explore Python code">
+      <div class="section-intro"><h2>The code behind the demo</h2><p>The same Python source powers the command-line program and this browser.</p></div>
+      <div class="code-grid"><aside><div id="code-nav" class="code-nav"><button data-section="stack" class="selected">01<span>Stack class</span></button><button data-section="tokens">02<span>Tokenize the expression</span></button><button data-section="apply">03<span>Apply an operator</span></button><button data-section="evaluate">04<span>Evaluate with two stacks</span></button><button data-section="files">05<span>Read and write files</span></button><button data-section="run">06<span>Run the program</span></button></div><div class="code-note" id="code-note"></div><a href="main.py" download class="secondary source-download">Download Python source</a></aside><div class="panel code-panel"><div class="panel-heading"><h3 id="code-title">Stack class</h3><span class="file-label">main.py · PYTHON</span></div><pre class="source-code" id="source-code" tabindex="0" aria-label="Python source code">Loading Python source…</pre></div></div>
+    </section>
+    <footer><span>Stack Lab</span><p>Python + HTML5 · No expression is executed with eval().</p><span>Push. Pop. Understand.</span></footer>
+  </main>
+</body>
+</html>
